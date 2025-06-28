@@ -29,6 +29,7 @@ namespace SyncHouseHero.Sync
           Hash = reader.GetString(1)
         });
       }
+      await reader.CloseAsync();
       return results;
     }
 

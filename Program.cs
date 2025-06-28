@@ -1,5 +1,4 @@
-﻿
-using SyncHouseHero.Sync;
+﻿using SyncHouseHero.Sync;
 
 namespace SyncHouseHero
 {
