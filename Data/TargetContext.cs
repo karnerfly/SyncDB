@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SyncHouseHero.Models;
 
 namespace SyncHouseHero.Data
 {
@@ -7,6 +8,7 @@ namespace SyncHouseHero.Data
     private readonly string _connectionString = connectionString;
 
     // TODO: register master data and mapping data enity
+    public DbSet<HouseType> HouseType { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
