@@ -22,15 +22,15 @@ namespace SyncHouseHero.Sync
       return this;
     }
 
-    public AnalyzeBuilder<TEntity> OnDifferentRecords(Action<TEntity, TEntity> printFunc)
+    public AnalyzeBuilder<TEntity> OnDifferentRecords(Action<TEntity, TEntity> action)
     {
-      _config.PrintChangedRecords = printFunc;
+      _config.ActionOnChangedRecords = action;
       return this;
     }
 
-    public AnalyzeBuilder<TEntity> OnNewRecords(Action<TEntity> printFunc)
+    public AnalyzeBuilder<TEntity> OnNewRecords(Action<TEntity> action)
     {
-      _config.PrintNewRecords = printFunc;
+      _config.ActionOnNewRecords = action;
       return this;
     }
 

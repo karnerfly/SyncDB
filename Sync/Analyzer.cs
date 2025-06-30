@@ -72,27 +72,36 @@ namespace SyncHouseHero.Sync
         }
       }
 
-      if (diffRecords.Count > 0 && config.PrintChangedRecords != null)
+      if (diffRecords.Count > 0 && config.ActionOnChangedRecords != null)
       {
-        Console.WriteLine("Records with different values:");
+        Console.WriteLine($"Records with different values: ({diffRecords.Count})");
         foreach (var (src, tgt) in diffRecords)
         {
-          config.PrintChangedRecords(src, tgt);
+          config.ActionOnChangedRecords(src, tgt);
         }
+      }
+      else
+      {
+        Console.WriteLine("All fields are indentical.");
       }
 
       Console.WriteLine("=".PadRight(padding, '='));
 
-      if (newRecords.Count > 0 && config.PrintNewRecords != null)
+      if (newRecords.Count > 0 && config.ActionOnNewRecords != null)
       {
-        Console.WriteLine("New Records:");
+        Console.WriteLine($"New Records: ({newRecords.Count})");
         foreach (var r in newRecords)
         {
-          config.PrintNewRecords(r);
+          config.ActionOnNewRecords(r);
         }
+      }
+      else
+      {
+        Console.WriteLine("No new records in source table.");
       }
 
       Console.WriteLine("=".PadRight(padding, '='));
+      Console.WriteLine();
     }
   }
 }

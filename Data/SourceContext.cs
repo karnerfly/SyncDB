@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SyncHouseHero.Models;
+using SyncHouseHero.Entities;
 
 namespace SyncHouseHero.Data
 {
@@ -9,6 +9,7 @@ namespace SyncHouseHero.Data
 
     // TODO: register master data and mapping data enity
     public DbSet<HouseType> HouseType { get; set; }
+    public DbSet<PermissionRecord> PermissionRecord { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
