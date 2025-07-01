@@ -13,7 +13,6 @@ namespace SyncHouseHero.Sync.Impl
       analyzeBuilder.OnDifferentRecords((src, tgt) =>
       {
         var sb = new StringBuilder();
-        sb.AppendLine("-".PadRight(Analyzer.Padding, '-'));
         sb.AppendLine($"ID: {src.Id}");
         sb.AppendLine($"+ Old [ Name: {tgt.Name}, Active: {tgt.Active} ]");
         sb.AppendLine($"- New [ Name: {src.Name}, Active: {src.Active} ]");
@@ -21,9 +20,7 @@ namespace SyncHouseHero.Sync.Impl
       });
       analyzeBuilder.OnNewRecords(r =>
       {
-        var sb = new StringBuilder();
-        sb.AppendLine($"Id: {r.Id,-10} [ Name: {r.Name}, Active: {r.Active} ]");
-        return sb.ToString();
+        return $"Id: {r.Id,-10} [ Name: {r.Name}, Active: {r.Active} ]\n";
       });
       return analyzeBuilder.Build();
     }
@@ -39,7 +36,6 @@ namespace SyncHouseHero.Sync.Impl
       analyzeBuilder.OnDifferentRecords((src, tgt) =>
       {
         var sb = new StringBuilder();
-        sb.AppendLine("-".PadRight(Analyzer.Padding, '-'));
         sb.AppendLine($"ID: {src.Id}");
         sb.AppendLine($"+ Old [ Name: {tgt.Name}, SystemName: {tgt.SystemName} ]");
         sb.AppendLine($"- New [ Name: {src.Name}, SystemName: {src.SystemName} ]");
@@ -47,9 +43,7 @@ namespace SyncHouseHero.Sync.Impl
       });
       analyzeBuilder.OnNewRecords(r =>
       {
-        var sb = new StringBuilder();
-        sb.AppendLine($"Id: {r.Id,-10} [ Name: {r.Name}, SystemName: {r.SystemName} ]");
-        return sb.ToString();
+        return $"Id: {r.Id,-10} [ Name: {r.Name}, SystemName: {r.SystemName} ]\n";
       });
 
       return analyzeBuilder.Build();

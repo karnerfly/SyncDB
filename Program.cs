@@ -16,36 +16,29 @@ namespace SyncHouseHero
       {
         try
         {
-          var inputFile = new StreamReader(File);
-          var outputFile = new StreamWriter(Out);
-
           var sourceContext = new SourceContext(Source);
           var targetContext = new TargetContext(Target);
+          TestSourceTargetConnection.Test(sourceContext, targetContext);
 
           var analyzer = new Analyzer(sourceContext, targetContext);
 
-          string? tableName = inputFile.ReadLine();
+          using var inputFile = new StreamReader(File);
+          using var outputFile = new StreamWriter(Out);
 
+          string? tableName = inputFile.ReadLine();
           Console.WriteLine("Analyzing....");
           while (tableName is not null)
           {
             if (!Mapper.EntityAnalyzeConfigMap.TryGetValue(tableName, out var config))
             {
-              inputFile.Close();
-              outputFile.Close();
               throw new Exception($"table {tableName} not found");
             }
 
             Console.WriteLine($"Table: {tableName}");
-
             await Run(analyzer, config, outputFile);
-
             tableName = inputFile.ReadLine();
           }
           Console.WriteLine("Done.");
-
-          inputFile.Close();
-          outputFile.Close();
         }
         catch (Exception e)
         {

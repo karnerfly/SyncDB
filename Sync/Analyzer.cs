@@ -77,6 +77,7 @@ namespace SyncHouseHero.Sync
         writer.WriteLine($"Records with different values: ({diffRecords.Count})");
         foreach (var (src, tgt) in diffRecords)
         {
+          writer.WriteLine("-".PadRight(Padding, '-'));
           writer.Write(config.ActionOnDifferentRecords(src, tgt));
         }
       }
@@ -85,7 +86,7 @@ namespace SyncHouseHero.Sync
         writer.WriteLine("All fields are indentical.");
       }
 
-      writer.WriteLine("=".PadRight(Padding, '='));
+      writer.WriteLine("-".PadRight(Padding, '-'));
 
       if (newRecords.Count > 0 && config.ActionOnNewRecords != null)
       {
