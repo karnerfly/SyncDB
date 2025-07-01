@@ -1,4 +1,5 @@
 ﻿using SyncHouseHero.Entities;
+using System.Text;
 
 namespace SyncHouseHero.Sync.Impl
 {
@@ -11,14 +12,18 @@ namespace SyncHouseHero.Sync.Impl
       analyzeBuilder.WithDifferFunc((a, b) => a.Name != b.Name || a.Active != b.Active);
       analyzeBuilder.OnDifferentRecords((src, tgt) =>
       {
-        Console.WriteLine("-".PadRight(40, '-'));
-        Console.WriteLine($"ID: {src.Id}");
-        Console.WriteLine($"+ Old [ Name: {tgt.Name}, Active: {tgt.Active} ]");
-        Console.WriteLine($"- New [ Name: {src.Name}, Active: {src.Active} ]");
+        var sb = new StringBuilder();
+        sb.AppendLine("-".PadRight(Analyzer.Padding, '-'));
+        sb.AppendLine($"ID: {src.Id}");
+        sb.AppendLine($"+ Old [ Name: {tgt.Name}, Active: {tgt.Active} ]");
+        sb.AppendLine($"- New [ Name: {src.Name}, Active: {src.Active} ]");
+        return sb.ToString();
       });
       analyzeBuilder.OnNewRecords(r =>
       {
-        Console.WriteLine($"Id: {r.Id,-10} [ Name: {r.Name}, Active: {r.Active} ]");
+        var sb = new StringBuilder();
+        sb.AppendLine($"Id: {r.Id,-10} [ Name: {r.Name}, Active: {r.Active} ]");
+        return sb.ToString();
       });
       return analyzeBuilder.Build();
     }
@@ -33,14 +38,18 @@ namespace SyncHouseHero.Sync.Impl
       || a.Category != b.Category);
       analyzeBuilder.OnDifferentRecords((src, tgt) =>
       {
-        Console.WriteLine("-".PadRight(40, '-'));
-        Console.WriteLine($"ID: {src.Id}");
-        Console.WriteLine($"+ Old [ Name: {tgt.Name}, SystemName: {tgt.SystemName} ]");
-        Console.WriteLine($"- New [ Name: {src.Name}, SystemName: {src.SystemName} ]");
+        var sb = new StringBuilder();
+        sb.AppendLine("-".PadRight(Analyzer.Padding, '-'));
+        sb.AppendLine($"ID: {src.Id}");
+        sb.AppendLine($"+ Old [ Name: {tgt.Name}, SystemName: {tgt.SystemName} ]");
+        sb.AppendLine($"- New [ Name: {src.Name}, SystemName: {src.SystemName} ]");
+        return sb.ToString();
       });
       analyzeBuilder.OnNewRecords(r =>
       {
-        Console.WriteLine($"Id: {r.Id,-10} [ Name: {r.Name}, SystemName: {r.SystemName} ]");
+        var sb = new StringBuilder();
+        sb.AppendLine($"Id: {r.Id,-10} [ Name: {r.Name}, SystemName: {r.SystemName} ]");
+        return sb.ToString();
       });
 
       return analyzeBuilder.Build();

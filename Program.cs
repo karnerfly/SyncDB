@@ -1,50 +1,71 @@
 ﻿using SyncHouseHero.Data;
 using SyncHouseHero.Sync;
 using System.Reflection;
+using Cocona;
 
 namespace SyncHouseHero
 {
   public static class Program
   {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
-      //const string SourceConnString = "Host=localhost;Port=5432;Username=postgres;Password=********;Database=practiceDb;";
-      //const string TargetConnString = "Host=localhost;Port=5432;Username=postgres;Password=********;Database=practiceDb-Dest;";
-      //const string Table = "HouseType";
-      const string SourceConnString = "Host=ruth.thehousehero.app;Port=5432;Username=postgres;Password=********;Database=pg-hhodb-local-ruth;";
-      const string TargetConnString = "Host=ruth.thehousehero.app;Port=5432;Username=postgres;Password=********;Database=pg-hhodb-dev-ruth;";
-
-      var sourceContext = new SourceContext(SourceConnString);
-      var targetContext = new TargetContext(TargetConnString);
-
-      var analyzer = new Analyzer(sourceContext, targetContext);
-
-      try
+      CoconaApp.Run(async ([Option(Description = "connection url for source database")] string Source,
+        [Option(Description = "connection url for target database")] string Target,
+        [Option(Description = "file path that contains table names")] string File,
+        [Option(Description = "output file path")] string Out) =>
       {
-        await Run(analyzer);
-      }
-      catch (Exception e)
-      {
-        Console.Error.WriteLine(e);
-      }
+        try
+        {
+          var inputFile = new StreamReader(File);
+          var outputFile = new StreamWriter(Out);
+
+          var sourceContext = new SourceContext(Source);
+          var targetContext = new TargetContext(Target);
+
+          var analyzer = new Analyzer(sourceContext, targetContext);
+
+          string? tableName = inputFile.ReadLine();
+
+          Console.WriteLine("Analyzing....");
+          while (tableName is not null)
+          {
+            if (!Mapper.EntityAnalyzeConfigMap.TryGetValue(tableName, out var config))
+            {
+              inputFile.Close();
+              outputFile.Close();
+              throw new Exception($"table {tableName} not found");
+            }
+
+            Console.WriteLine($"Table: {tableName}");
+
+            await Run(analyzer, config, outputFile);
+
+            tableName = inputFile.ReadLine();
+          }
+          Console.WriteLine("Done.");
+
+          inputFile.Close();
+          outputFile.Close();
+        }
+        catch (Exception e)
+        {
+          Console.Error.WriteLine(e);
+        }
+      });
     }
 
-    public static async Task Run(Analyzer analyzer)
+    public static async Task Run(Analyzer analyzer, object config, StreamWriter sw)
     {
-      foreach (var kvp in Mapper.EntityAnalyzeConfigMap)
+      var configType = config.GetType();
+
+      if (configType.IsGenericType && configType.GetGenericTypeDefinition() == typeof(AnalyzeConfig<>))
       {
-        var configObj = kvp.Value;
-        var configType = configObj.GetType();
+        var entityType = configType.GetGenericArguments()[0];
+        var method = typeof(Analyzer).
+          GetMethod(nameof(Analyzer.Analyze), BindingFlags.Public | BindingFlags.Instance)!
+          .MakeGenericMethod(entityType);
 
-        if (configType.IsGenericType && configType.GetGenericTypeDefinition() == typeof(AnalyzeConfig<>))
-        {
-          var entityType = configType.GetGenericArguments()[0];
-          var method = typeof(Analyzer).
-            GetMethod(nameof(Analyzer.Analyze), BindingFlags.Public | BindingFlags.Instance)!
-            .MakeGenericMethod(entityType);
-
-          await (Task?)method.Invoke(analyzer, [configObj])!;
-        }
+        await (Task)method.Invoke(analyzer, [config, sw])!;
       }
     }
   }

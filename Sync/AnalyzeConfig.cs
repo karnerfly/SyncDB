@@ -12,7 +12,7 @@ namespace SyncHouseHero.Sync
     public Func<TargetContext, DbSet<TEntity>> Target { get; set; } = target;
     public Func<TEntity, object> IdSelector { get; set; }
     public Func<TEntity, TEntity, bool>? DifferFunc { get; set; }
-    public Action<TEntity, TEntity>? ActionOnChangedRecords { get; set; }
-    public Action<TEntity>? ActionOnNewRecords { get; set; }
+    public Func<TEntity, TEntity, string>? ActionOnDifferentRecords { get; set; }
+    public Func<TEntity, string>? ActionOnNewRecords { get; set; }
   }
 }

@@ -5,6 +5,7 @@ namespace SyncHouseHero.Sync
 {
   public class Analyzer(SourceContext sourceContext, TargetContext targetContext)
   {
+    public static readonly int Padding = 60;
     private readonly SourceContext _sourceContext = sourceContext;
     private readonly TargetContext _targetContext = targetContext;
 
@@ -22,7 +23,7 @@ namespace SyncHouseHero.Sync
       return await target.ToListAsync();
     }
 
-    public async Task Analyze<TEntity>(AnalyzeConfig<TEntity> config) where TEntity : class
+    public async Task Analyze<TEntity>(AnalyzeConfig<TEntity> config, StreamWriter writer) where TEntity : class
     {
       var sourceTask = GetSourceHashResultsAsync(config);
       var targetTask = GetTargetHashResultsAsync(config);
@@ -32,23 +33,22 @@ namespace SyncHouseHero.Sync
       var sourceResult = sourceTask.Result;
       var targetResult = targetTask.Result;
 
-      PrintSummary(sourceResult, targetResult, config);
+      CreateSummary(sourceResult, targetResult, config, writer);
     }
 
-    private static void PrintSummary<TEntity>(
+    private static void CreateSummary<TEntity>(
     List<TEntity> sourceResult,
     List<TEntity> targetResult,
-    AnalyzeConfig<TEntity> config)
+    AnalyzeConfig<TEntity> config,
+    StreamWriter writer)
     where TEntity : class
     {
-      int padding = 40;
+      writer.WriteLine("=".PadRight(Padding, '='));
+      writer.WriteLine($"Table: {typeof(TEntity).Name}");
+      writer.WriteLine("=".PadRight(Padding, '='));
 
-      Console.WriteLine("=".PadRight(padding, '='));
-      Console.WriteLine($"Table: {typeof(TEntity).Name}");
-      Console.WriteLine("=".PadRight(padding, '='));
-
-      Console.WriteLine($"{"Source Records:",-10} {sourceResult.Count}");
-      Console.WriteLine($"{"Target Records:",-10} {targetResult.Count}");
+      writer.WriteLine($"{"Source Records:",-10} {sourceResult.Count}");
+      writer.WriteLine($"{"Target Records:",-10} {targetResult.Count}");
 
       var targetMap = targetResult.ToDictionary(config.IdSelector);
       var targetIds = new HashSet<object>(targetMap.Keys);
@@ -72,36 +72,36 @@ namespace SyncHouseHero.Sync
         }
       }
 
-      if (diffRecords.Count > 0 && config.ActionOnChangedRecords != null)
+      if (diffRecords.Count > 0 && config.ActionOnDifferentRecords != null)
       {
-        Console.WriteLine($"Records with different values: ({diffRecords.Count})");
+        writer.WriteLine($"Records with different values: ({diffRecords.Count})");
         foreach (var (src, tgt) in diffRecords)
         {
-          config.ActionOnChangedRecords(src, tgt);
+          writer.Write(config.ActionOnDifferentRecords(src, tgt));
         }
       }
       else
       {
-        Console.WriteLine("All fields are indentical.");
+        writer.WriteLine("All fields are indentical.");
       }
 
-      Console.WriteLine("=".PadRight(padding, '='));
+      writer.WriteLine("=".PadRight(Padding, '='));
 
       if (newRecords.Count > 0 && config.ActionOnNewRecords != null)
       {
-        Console.WriteLine($"New Records: ({newRecords.Count})");
+        writer.WriteLine($"New Records: ({newRecords.Count})");
         foreach (var r in newRecords)
         {
-          config.ActionOnNewRecords(r);
+          writer.Write(config.ActionOnNewRecords(r));
         }
       }
       else
       {
-        Console.WriteLine("No new records in source table.");
+        writer.WriteLine("No new records in source table.");
       }
 
-      Console.WriteLine("=".PadRight(padding, '='));
-      Console.WriteLine();
+      writer.WriteLine("=".PadRight(Padding, '='));
+      writer.WriteLine();
     }
   }
 }
