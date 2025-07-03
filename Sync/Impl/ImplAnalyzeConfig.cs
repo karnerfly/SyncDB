@@ -10,7 +10,7 @@ namespace SyncHouseHero.Sync.Impl
     {
       var builder = new AnalyzeConfig<HouseType>.Builder(sCtx => sCtx.HouseType, tCtx => tCtx.HouseType);
       builder.WithId(e => e.Id);
-      builder.WithDifferFunc((a, b) => a.Name != b.Name || a.Active != b.Active);
+      builder.WithDifferFunc((a, b) => !a.Identical(b));
       builder.OnDifferentRecords((src, tgt) =>
       {
         var sb = new StringBuilder();
@@ -31,9 +31,7 @@ namespace SyncHouseHero.Sync.Impl
       var builder = new AnalyzeConfig<PermissionRecord>.Builder(sCtx => sCtx.PermissionRecord,
         tCtx => tCtx.PermissionRecord);
       builder.WithId(e => e.Id);
-      builder.WithDifferFunc((a, b) => a.Name != b.Name
-      || a.SystemName != b.SystemName
-      || a.Category != b.Category);
+      builder.WithDifferFunc((a, b) => !a.Identical(b));
       builder.OnDifferentRecords((src, tgt) =>
       {
         var sb = new StringBuilder();
@@ -55,7 +53,7 @@ namespace SyncHouseHero.Sync.Impl
       var builder = new AnalyzeConfig<RoomTemplate>.Builder(sCtx => sCtx.RoomTemplate,
         tCtx => tCtx.RoomTemplate);
       builder.WithId(e => e.Id);
-      builder.WithDifferFunc((a, b) => a.Name != b.Name || a.IsActive != b.IsActive);
+      builder.WithDifferFunc((a, b) => !a.Identical(b));
       builder.OnDifferentRecords((src, tgt) =>
       {
         var sb = new StringBuilder();
