@@ -21,7 +21,7 @@ namespace SyncHouseHero.Sync.Impl
       });
       builder.OnNewRecords(r =>
       {
-        return $"Id: {r.Id,-10} [ Name: {r.Name}, Active: {r.Active} ]\n";
+        return $"Id: {r.Id,-10} [ Name: {r.Name}, Active: {r.Active} ]";
       });
       return builder.Build();
     }
@@ -42,7 +42,7 @@ namespace SyncHouseHero.Sync.Impl
       });
       builder.OnNewRecords(r =>
       {
-        return $"Id: {r.Id,-10} [ Name: {r.Name}, SystemName: {r.SystemName} ]\n";
+        return $"Id: {r.Id,-10} [ Name: {r.Name}, SystemName: {r.SystemName} ]";
       });
 
       return builder.Build();
@@ -64,7 +64,7 @@ namespace SyncHouseHero.Sync.Impl
       });
       builder.OnNewRecords(r =>
       {
-        return $"Id: {r.Id,-10} [ Name: {r.Name}, IsActive: {r.IsActive} ]\n";
+        return $"Id: {r.Id,-10} [ Name: {r.Name}, IsActive: {r.IsActive} ]";
       });
 
       return builder.Build();

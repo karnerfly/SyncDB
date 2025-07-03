@@ -98,7 +98,7 @@ namespace SyncHouseHero.Sync
         if (config.ActionOnNewRecords is not null && !onlySummary)
           foreach (var r in newRecords)
           {
-            writer.Write(config.ActionOnNewRecords(r));
+            writer.WriteLine(config.ActionOnNewRecords(r));
           }
       }
       else
