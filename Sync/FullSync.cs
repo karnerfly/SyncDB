@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SyncHouseHero.Data;
+using SyncHouseHero.Sync.Config;
 
 namespace SyncHouseHero.Sync
 {

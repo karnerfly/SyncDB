@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SyncHouseHero.Data;
 
-namespace SyncHouseHero.Sync
+namespace SyncHouseHero.Sync.Config
 {
   public class SyncConfig<TEntity> where TEntity : class
   {

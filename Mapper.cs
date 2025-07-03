@@ -6,8 +6,9 @@ namespace SyncHouseHero
   {
     public static Dictionary<string, object> EntityAnalyzeConfigMap { get; set; } = new()
         {
-          {"HouseType", ImplAnalyzerConfig.GetHouseType() },
-          {"PermissionRecord", ImplAnalyzerConfig.GetPermissionRecord() },
+          {"HouseType", ImplAnalyzeConfig.GetHouseType() },
+          {"PermissionRecord", ImplAnalyzeConfig.GetPermissionRecord() },
+          {"RoomTemplate", ImplAnalyzeConfig.GetRoomTemplate() },
         };
   }
 }

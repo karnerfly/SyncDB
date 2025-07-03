@@ -2,6 +2,8 @@
 using SyncHouseHero.Sync;
 using System.Reflection;
 using Cocona;
+using Microsoft.Extensions.Configuration;
+using SyncHouseHero.Sync.Config;
 
 namespace SyncHouseHero
 {
@@ -9,24 +11,41 @@ namespace SyncHouseHero
   {
     public static void Main(string[] args)
     {
-      CoconaApp.Run(async ([Option(Description = "connection url for source database")] string Source,
-        [Option(Description = "connection url for target database")] string Target,
-        [Option(Description = "file path that contains table names")] string File,
-        [Option(Description = "output file path")] string Out) =>
+      var config = GetConfiguration();
+      var OutputDirectory = "output";
+      var OutputFilePath = OutputDirectory + "\\" + "Summary_" + DateTime.UtcNow.Ticks + ".txt";
+
+      if (!Directory.Exists(OutputDirectory))
+      {
+        Directory.CreateDirectory(OutputDirectory);
+      }
+
+      var sourceConnectionString = config.GetConnectionString("SourceString");
+      var targetConnectionString = config.GetConnectionString("TargetString");
+
+      if (sourceConnectionString is null || targetConnectionString is null)
+      {
+        throw new Exception("source or target string is missing in configuration json file");
+      }
+
+      CoconaApp.Run(
+        async (
+        [Option(Description = "file path that contains table names")] string tables,
+        [Option(Description = "set to generate only summary")] bool onlySummary) =>
       {
         try
         {
-          var sourceContext = new SourceContext(Source);
-          var targetContext = new TargetContext(Target);
+          var sourceContext = new SourceContext(sourceConnectionString);
+          var targetContext = new TargetContext(targetConnectionString);
           TestSourceTargetConnection.Test(sourceContext, targetContext);
+
+          using var inputFile = new StreamReader(tables);
+          using var outputFile = new StreamWriter(OutputFilePath);
 
           var analyzer = new Analyzer(sourceContext, targetContext);
 
-          using var inputFile = new StreamReader(File);
-          using var outputFile = new StreamWriter(Out);
-
-          string? tableName = inputFile.ReadLine();
           Console.WriteLine("Analyzing....");
+          var tableName = inputFile.ReadLine();
           while (tableName is not null)
           {
             if (!Mapper.EntityAnalyzeConfigMap.TryGetValue(tableName, out var config))
@@ -35,7 +54,7 @@ namespace SyncHouseHero
             }
 
             Console.WriteLine($"Table: {tableName}");
-            await Run(analyzer, config, outputFile);
+            await Run(analyzer, config, onlySummary, outputFile);
             tableName = inputFile.ReadLine();
           }
           Console.WriteLine("Done.");
@@ -47,19 +66,24 @@ namespace SyncHouseHero
       });
     }
 
-    public static async Task Run(Analyzer analyzer, object config, StreamWriter sw)
+    public static async Task Run(Analyzer analyzer, object config, bool onlySummary, StreamWriter sw)
     {
-      var configType = config.GetType();
+      var type = config.GetType();
+      var iface = type.GetInterfaces().FirstOrDefault(i =>
+      i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAnalyzeConfig<>))
+        ?? throw new Exception("invalid analyze config type");
 
-      if (configType.IsGenericType && configType.GetGenericTypeDefinition() == typeof(AnalyzeConfig<>))
-      {
-        var entityType = configType.GetGenericArguments()[0];
-        var method = typeof(Analyzer).
-          GetMethod(nameof(Analyzer.Analyze), BindingFlags.Public | BindingFlags.Instance)!
-          .MakeGenericMethod(entityType);
+      var entityType = type.GetGenericArguments()[0];
+      var method = typeof(Analyzer).
+        GetMethod(nameof(Analyzer.Analyze), BindingFlags.Public | BindingFlags.Instance)!
+        .MakeGenericMethod(entityType);
 
-        await (Task)method.Invoke(analyzer, [config, sw])!;
-      }
+      await (Task)method.Invoke(analyzer, [config, onlySummary, sw])!;
+    }
+
+    public static IConfiguration GetConfiguration()
+    {
+      return new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
     }
   }
 }

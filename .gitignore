@@ -363,4 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 #custom
-creds.txt
+*.txt
+appsettings.json
